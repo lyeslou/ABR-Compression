@@ -1,0 +1,31 @@
+\chapter{Arbres de recherches Binaires}
+\section{Structure}
+    \begin{minted}{ocaml} 
+        type arb = Empty | Node of int * arb * arb ;;
+    \end{minted}
+\section{Construction}
+On construit notre arbre binaire de recherche par ajout successifs en feuille à partir d'une liste reçu en paramètre : \\ 
+\begin{enumerate}
+    \item On construit un nouveau noeud ayant comme clé la valeur de notre élément, Empty pour les deux fils gauche et droit.
+    \item Pour chaque élément de la liste on insert celui-ci à la feuille de l'arbre. 
+\end{enumerate}
+De cette façon l'insertion se fait toujours au niveau des feuilles et pour une liste donnée il y a qu'un seul arbre possible a construire.
+\section{Recherche}
+La recherche d'un élément dans l'arbre se fait de la manière suivante :\\
+\begin{itemize}
+    \item si la racine = vide on renvoie false 
+    \item si val(racine) = élément on renvoie true 
+    \item si val(racine) < élément on continue la recherche dans le sous arbre gauche sinon on continue dans le sous arbre droit.  
+\end{itemize}
+
+
+\section{Complexité}
+La complexité de recherche est en O(h) où h est la hauteur de l'arbre\\
+\begin{itemize}
+    \item Dans le pire cas (liste triée) la hauteur égal n --> O(n)
+    \item Dans le cas moyen (arbre équilibré) la hauteur tend vers log(n) --> O(log (n)).
+\end{itemize}
+
+
+
+

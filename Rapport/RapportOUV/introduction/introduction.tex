@@ -1,0 +1,14 @@
+\chapter{Introduction}
+\paragraph{}
+
+Dans le cadre de ce projet, la problématique d'occupation mémoire dans le stockage de données arborescente nous a été introduite.
+En effet, les structures arborescentes ont, par nature, une taille mémoire linéaire par rapport au nombre d'éléments \textit{(n + 2n ref)}.
+
+La solution qui nous a été proposé pour répondre à cette problématique, est de factoriser les sous-structures arborescentes qui ont la même topologie. Du fait de la structure récursive des arbres, il existe beaucoup de ressemblances typologiques entre les sous-structures ce qui permet d'effectuer une factorisation efficace et offre la possibilité de créer un algorithme de compression efficace.
+
+\paragraph{}
+Grâce à cette méthode de compression, nous pouvons espérer diminuer l'occupation mémoire des structures arborescentes.
+
+Cependant, l'intérêt des arbres est le temps de recherche qui assez faible en moyenne, en effet les arbres binaire de recherches ont un temps de recherche qui est en O(log(n)). Ainsi cet algorithme de compression ne doit pas trop affecter ce temps de recherche.
+\paragraph{}
+Tout ce projet consiste à implémenter différentes versions de cette compression en OCaml( une version utilisant des Liste et une autre avec des map) et d'étudier les résultats obtenus sur l'efficacité de cette compression.

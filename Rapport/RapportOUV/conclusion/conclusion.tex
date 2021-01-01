@@ -1,0 +1,19 @@
+\chapter{Conclusion}
+
+\paragraph{}
+Durant ce projet, nous avons essayé d'implémenter une compression d'arbre binaire de recherche susceptible d'améliorer les performances mémoires sans trop diminuer les performances en temps de calcul.
+En effet, théoriquement cette implémentation aurait dû donner des résultats assez clairs mais malheureusement, cela n'a été le cas dans nos expérimentations :
+\begin{itemize}
+    \item un arbre binaire de recherche standard de 40000 éléments on a une mémoire de \textit{120000} (n + 2n ref)
+    \item En prenant en compte le nombre moyen de valeurs dans un noeud \textit{moy} et le nombre de noeud total \textit{nb} pour un arbre de taille 40000 on obtient \textit{moy = 4,3} et \textit{nb = 8500}.
+    \item Et la taille de notre structure peut se calculer de cette manière : \textit{nbElem + nbRef + nbLabels } où :
+    \begin{itemize}
+        \item \textit{nbElem = nb * moy = 36550}
+        \item \textit{nbRef = 2 * nb * (ref + label) = 34000} (en effet chaque arc a une référence et un label
+        \item \textit{nbLabels = n * labels = 520000} où \textit{n} est le nombre d'elements et \textit{labels} sont les labels de chaque éléments soit au pire cas \textit{labels = log(nb)}
+    \end{itemize}
+    ce qui donne : \textit{memoire = (nb * moy) + 2 * nb (ref + label)  + log(nb) * n = 590550}
+\end{itemize}
+\paragraph{}
+En regardant ces résultats, on se rend compte que le plus gros problème de mémoire est la façon de stocker les labels correspondant à chaque valeur. En effet, on stocke la liste entière des labels pour chaque valeur. 
+Pour remédier à cela, une idée serait de ne stocker que le label du père et non toute la liste. cette solution diminuerait grandement la mémoire de notre structure car \textit{nbLabels = n} seulement ce qui donnerait un total de \textit{110550}. 

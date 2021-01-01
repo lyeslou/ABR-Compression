@@ -1,0 +1,115 @@
+\chapter{Compression des arbres}
+Dans ce chapitre nous allons présenter la méthode suivie pour compresser un arbre binaires de recherches.
+\section{Structure de l'arbre compressé}
+% [style=bw] %
+\begin{minted}{ocaml} 
+    type ('a,'b) pointeurAbr = Null | Pointeur of ('a, 'b) abrCompresse ref
+    and ('a,'b) abrCompresse = EmptyCL | NodeC of ('a, 'b) contentNode
+    and ('a,'b) contentNode  = { 
+        mutable valuesNode: 'a;
+        labelArcsRouge: ('b * 'b); 
+        abrGauche: ('a,'b) pointeurAbr ; 
+        abrDroite: ('a,'b) pointeurAbr 
+    };;
+\end{minted}
+\paragraph{}
+On a choisi un enregistrement pour représenter notre arbre compressé, pour sa simplicité et la lisibilité du code (abrGauche=...,abrDroit=...). De plus, grâce au mot clé mutable on peut modifier un nœud donc la construction est beaucoup plus facile et ça coûte beaucoup moins en temps (on ne reconstruit pas tout l’arbre a chaque modification d'un noeud ).
+\begin{itemize}
+    \item contentNode est le seul champ qui est mutable, on modifie ce champ quand on ajoute une valeur et son label par contre les autres champs (abrGauche, abrDroite, labelArcRouge) seront fixés à la construction du nœud  et on a pas besoin de les modifier.
+    \item labelArcRouge contient un couple, le premier correspond au label du fils gauche, le deuxième au filsDroit.
+\end{itemize}
+
+Enfin notre structure est générique on l’utilise à la fois pour la version avec liste et map (plus de détaille dans les sections liste et map). 
+
+
+\section{Avec les listes}
+    \paragraph{}
+    Avant de commencer à décrire la méthode suivie, on va rappeler d'abord la manière avec laquelle on associe une chaîne de caractères à un arbre binaire, ainsi que la condition pour que deux arbres sont identiques au sens de la structure arborescente.  
+    \subsection{Structure arborescente d'un arbre binaire de recherche}
+     \paragraph{}
+     on va associer à chaque arbre une chaîne de caractères construite sur l’alphabet \{\color{red}(\color{black}, \color{red})\color{black}\}, via la construction suivante. Soit A l’arbre binaire à compresser, et $\varphi$ la fonction suivante :
+     \begin{itemize}
+         \item Si A est réduit à une feuille, on lui associe le mot vide $\varepsilon$ (ainsi $\varphi$(•) = $\varepsilon$);
+         \item Si A a un nœud interne et deux enfants G et D qui sont des arbres binaires alors on associe : 
+         \tabto{4.5cm}$\varphi(A) = \color{red}(\color{black}\varphi(G)\color{red})\color{black}\varphi(D)$
+     \end{itemize}
+     L'algorithme implémenté pour répondre à ce besoins est comme suit:
+     \begin{minted}{ocaml} 
+        let chaine_caractere_associe_abr abr=
+          let rec loop abr =
+            match abr with
+            |Empty->[]
+            |Node(cle,g,d)->["("] @ loop g @ [")"] @ loop d
+          in String.concat "" (loop abr)
+        ;;  
+    \end{minted}
+    \paragraph{}
+    Pour savoir si deux arbres sont identiques au sens de structures arborescentes il suffit de comparer les deux chaînes de caractères. Donc on aura l'algorithme suivant
+     \begin{minted}{ocaml} 
+        let isEqv abr1 abr2=
+            chaine_caractere_associe_abr abr1 = chaine_caractere_associe_abr abr2
+        ;;
+    \end{minted}
+    \subsection{Description de la méthode de compression}
+    \paragraph{}
+    D'abord, on commence par définir notre a' et b' de notre structure généralisée; on prend le b' comme étant un entier pour représenter nos labels( b'=int ) et a' comme étant une liste de couples( valeur, liste de labels),c'est-à-dire a'=(int, int list).\\
+    L'idée de l'algorithme est la suivante:
+    \begin{enumerate}
+        \item On initialise comme variables globales un compteur de label "\textit{labelCpt}", et un label par défaut pour dire y a pas de label "\textit{noLabel}".
+        \item On construit une liste de structures arborescente déjà vues qu'on appellera "\textit{seen}", comme étant liste de couple de chaîne de caractères et référence à l'arbre correspondant.
+        \item On fait à parcours postfixe sur notre arbre de départ, et pour chaque nœud:
+        \begin{enumerate}
+            \item Si c'est une feuille (Empty) on renvoie(noLabel, EmptyCL)
+            \item Sinon
+                \begin{enumerate}
+                    \item On associe une chaîne de caractères au nœud, et on vérifie si on a déjà vu une telle structure avec une fonction qui prend en paramètres la chaîne de caractères et notre liste \textit{seen}.
+                    \item Si la structure n'est pas déjà vu on fait un appel récursive sur le fils droite et le fils gauche. Et et on insère la nouvelle structure dans la liste \textit{seen} avec référence vers le nœud.
+                    \item Sinon on génère avec nouveau label et on insère le contenu de l'arbre dont la racine est ce nœud qu'on est entrain de visiter, dans la référence renvoyer par la liste \textit{seen} à l'aide d'une fonction la liste \textit{seen} à l'aide d'une fonction \textit{insertCompresse} qui prend en paramètre la référence, l'arbre à insérer et le label, et rajoute à la liste de nœud d'arbre référencé la valeur ainsi que le label.
+                \end{enumerate}
+        \end{enumerate}
+    \end{enumerate}
+    \subsection{Algorithme}
+    \begin{minted}{ocaml} 
+    let getArbreCompresseListeFromAbr arbre = 
+      let seen = ref [] in 
+        let rec aux (abr: arb)= 
+          match abr with 
+          | Empty -> ( noLabel, EmptyCL )
+          | Node (value , g, d ) -> 
+            begin 
+              let chaine = (chaine_caractere_associe_abr abr) in 
+              let (hs, pointeurABR) = (haveSeen chaine !seen) in 
+              begin 
+                if hs then 
+                  let tempL = (newLabel ()) in 
+                    (tempL , (insertCompresse pointeurABR abr tempL) ) 
+                else 
+                  begin
+                    let (labelG, abrCompG) = (aux g )  
+                    and (labelD, abrComprD) = (aux d ) in
+                      let node = getNewValueNodeList value labelG labelD abrCompG abrCompD in
+                        let pointeurNode = getNewPointeurAbrFromAbrCompresseList node in 
+                        (insertToHaveSeen chaine pointeurNode seen) ; (noLabel, pointeurNode )
+                  end
+              end
+            end
+          in let (_, res) = aux arbre in getAbrCompresseListFromPointeurAbr res
+    ;;    
+    \end{minted}
+        
+    
+\section{Avec la Map}
+Dans cette partie nous parlons de la méthode suivie pour compresser un arbre avec une map. 
+Notre méthode est quasiment similaire à celle avec une liste, on présentera les points qui 
+diffèrent de la première méthode.
+
+\subsection{La structure}
+On prend le b' comme étant une chaîne de caractère  pour représenter nos labels( b'=string ) et a' comme étant une map : la clé est de type string qui représente le label, et la valeur est de type int.\\
+
+\subsection{La variable global labelCpt}
+On initialise labelCpt a 0 (let labelCpt = ref 0)
+Dans la fonction newLabel on incrémente labelCpt et on retourne la valeur de ce dernier convertit en string.
+
+
+
+

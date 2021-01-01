@@ -1,0 +1,80 @@
+\chapter{Recherche}
+\paragraph{}
+Après la compression de l'arbre, dans cette partie nous présentons l'algorithme de recherche avec les deux structure liste et map.
+
+\section{La recherche avec la liste}
+\subsection{Description de l'algorithme}
+\paragraph{}
+L'idée générale de l'algorithme de recherche dans un arbre compressé avec les listes est du même principe que celui des arbre binaires de recherche standard avec quelques extensions. 
+La méthode de recherche est la suivante:
+\begin{enumerate}
+    \item L'algorithme prend en entrée l'arbre compressé et une valeur
+    \item Au début de l'algorithme on associe une liste de labels à vide à la valeur donnée en entrée
+    \item On accède à la racine de l'arbre, et on procède de la manière suivante:
+    \begin{enumerate}
+        \item Si la liste de labels sauvegardé pendant le chemin de recherche est vide([ ]), alors notre élément est sûrement le premier dans le nœud, vu qu'il est originaire dans le nœud( puisque on a une liste de labels vide => pas d'arcs rouges)
+        \begin{enumerate}
+            \item Si le contenu du premier nœud = valeur,alors on renvoie \textit{Vrai}
+            \item Sinon si le contenu < valeur, on fait un appel un appel récursive avec les paramètres \textit{arbDroite}, valeur et la liste des label initial concaténée avec le contenu du label \textit{arcRougeDroite} si c'est pas vide(\textit{noLabel})
+            \item Sinon c'est le même cas que précédemment avec juste maintenant \textit{arbGauche}.
+        \end{enumerate}
+        \item Sinon on fait une recherche sur notre liste de labels dans la liste contenue dans le nœud
+        \begin{enumerate}
+            \item Si le contenu de la case avec la même liste de la labels que celle du chemin pris, est égal à valeur, alors on renvoi \textit{Vrai}
+            \item Sinon de la même façon on compare le contenu avec la valeur qu'on cherche pour prendre faire un appel récursive, soit le chemin gauche ou droit avec le rajout du label à notre liste de labels.
+        \end{enumerate}
+    \end{enumerate}
+    \item On s'arrête si on arrive à une feuille de l'arbre et renvoie \textit{Faux} 
+\end{enumerate}
+\subsection{Algorithme implémenté avec \textit{OCaml}}
+    \begin{minted}{ocaml} 
+        let rechercheArbreCompresse arbreCompresse  (elem : int) : bool = 
+          let rec aux abr labels : bool = 
+            match abr with
+            | EmptyCL -> false
+            | NodeC(content) -> match labels with 
+              |[] -> 
+                  let valNoeud = fst (getFirstElement content.valuesNode )
+                  and lg = fst content.labelArcsRouge
+                  and ld = snd content.labelArcsRouge in 
+                  if valNoeud = elem then true
+                  else 
+                    if valNoeud < elem then
+                      aux (getAbrCompresseListFromPointeurAbr 
+                      content.abrDroite) (if ld = noLabel then [] else [ld] )
+                    else
+                      aux (getAbrCompresseListFromPointeurAbr
+                      content.abrGauche) (if lg = noLabel then [] else [lg] )
+              | _ ->
+                  let (found, indiceElement) = (elementIsInList 
+                  content.valuesNode elem labels) in
+                  if found then true 
+                  else 
+                      let valN = fst (List.nth content.valuesNode indiceElement) 
+                      and lg = fst content.labelArcsRouge
+                      and ld = snd content.labelArcsRouge in
+                      if valN < elem then
+                        aux (getAbrCompresseListFromPointeurAbr 
+                        content.abrDroite) (labels @ if ld = noLabel then [] else [ld])
+                      else
+                        aux (getAbrCompresseListFromPointeurAbr 
+                        content.abrGauche) (labels @ if lg = noLabel then [] else [lg])
+            in aux arbreCompresse [];;
+    \end{minted}
+\subsection{Complexité}
+\paragraph{}
+Dans cet algorithme de recherche, nous parcourons une seule fois la profondeur de l'arbre soit en $O(log(n))$ visites de noeud. Pour visiter un noeud, nous devons parcourir la liste des valeurs contenues à l'intérieur et comparer pour chacune les labels soit en $O(n)$ comparaisons de labels (au pire cas, le noeud feuille peut contenir $O(n)$ valeurs). La comparaison de labels revient à une comparaison de liste ou de chaine de caractères, de plus nous savons qu'un élément peut avoir une liste d'au plus $O(log(n))$ label donc en $O(log(n))$ comparaisons.
+Ce qui donne à notre algorithme une complexité temporelle de $O(n * log(n)²)$ \\ \\
+Cependant, nous avons pu remarquer que, du fait de la compression, il n'existe en fait que 1 ou 2 noeuds qui possède cet ordre de noeuds ce qui donne en pratique une complexité qui se rapproche plus de $O(n * log(n))$
+
+
+\section{La recherche avec la map}
+\subsection{Description de l'algorithme}
+\paragraph{}
+Le principe de l'algorithme de recherche pour les arbres compressés avec des maps est le même que celui avec les listes, avec quelques modifications vue que maintenant on a plus une liste de labels mais plutôt une chaîne de caractères de labels concaténés.\\
+Pour la recherche de le nœud on utilisé la fonction approprie au module \textit{Map} de \textbf{OCaml}: \textit{find} on lui donnant en paramètres la chaîne de caractères de labels et le nœud(autant que map).
+
+
+\subsection{Complexité}
+\paragraph{}
+Le princie de cet algorithme étant le même que celui de recherche en liste, nous avons aussi un seul parcours de la profondeur de l'arbre soit $O(log(n))$ visites de noeud. Pour la visite de noeud cette fois-ci, nous faisons uniquement appel à \textbf{Map.find} qui effectue la recherche en $O(log(n)$ comparaisons \cite{refMap} ce qui donne une complexité totale de $O(log(n)²)$.

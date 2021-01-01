@@ -1,0 +1,33 @@
+
+
+
+La répartition est juste indicative !!!!!! 
+
+
+LOUNIS Lyes: structure, map
+
+HADJEBAR Rabah: Introduction, Construction de l'arbre compressé,Expérimentation 
+
+LEFFAD Karim:Conclusion, recherche ..
+
+
+Je sais pas trop mais il faut repartir les taches!! on a pas bcq de temps !!!
+
+
+
+\begin{tikzpicture}[nodes={draw, circle}, minimum size=0.9cm]
+    \node{4}
+    child { node {2} 
+        child { node {1} }
+        child { node {3} }
+    }
+    child [missing]
+    child [missing]
+    child {node {8} 
+        child { node {6} 
+            child { node {5} }
+            child { node {7} }
+        }
+        child { node {9} }
+    };
+\end{tikzpicture}

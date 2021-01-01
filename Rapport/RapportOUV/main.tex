@@ -1,0 +1,47 @@
+\documentclass[a4paper, twoside]{report}
+
+\usepackage[french]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{textcomp}
+\usepackage[scaled]{beramono}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{lscape}
+\usepackage{tabto}
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{subfigure}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\title{Arbres de Recherches Binaires Compressés}
+\author{ \tabto{2.3cm} HADJEBAR Rabah \\ \tabto{2.3cm}LOUNIS Lyes \\ \tabto{2.3cm} LEFFAD Karim}
+% Update supervisor and other title stuff in title/title.tex
+
+\begin{document}
+\input{title/title.tex}
+
+
+\tableofcontents
+%\listoffigures%
+%\listoftables%
+
+\input{introduction/introduction.tex}
+\input{Chapitres/ABR.tex}
+\input{Chapitres/compression.tex}
+\input{Chapitres/recherche.tex}
+\input{Chapitres/Experimentation.tex}
+\input{conclusion/conclusion.tex}
+%\input{appendix/appendix.tex}%
+
+\bibliographystyle{unsrt}
+\bibliography{bibs/sample}
+\addcontentsline{toc}{chapter}{Bibliographie}
+
+\end{document}
